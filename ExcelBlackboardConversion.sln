@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelBlackboardConversion", "ExcelBlackboardConversion\ExcelBlackboardConversion.csproj", "{8D73DEDB-84DC-4293-9A7D-9CD733F32853}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8D73DEDB-84DC-4293-9A7D-9CD733F32853}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D73DEDB-84DC-4293-9A7D-9CD733F32853}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D73DEDB-84DC-4293-9A7D-9CD733F32853}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D73DEDB-84DC-4293-9A7D-9CD733F32853}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2754F3CA-AD56-467B-A44B-D46CB1BE4BF1}
+	EndGlobalSection
+EndGlobal
