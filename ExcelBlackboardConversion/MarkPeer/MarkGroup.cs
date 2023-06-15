@@ -46,6 +46,11 @@ namespace ExcelBlackboardConversion.MarkPeer
 			while (true)
 			{
 				var name = table.Cells[$"B{row}"].Text;
+				if (name.Contains("/"))
+				{
+					var nms = name.Split('/');
+					name = nms.Last().Trim();
+				}
 				var mark = table.Cells[$"K{row}"].Text;
 				if (string.IsNullOrEmpty(name) && !g.Marks.Any())
 					yield break;

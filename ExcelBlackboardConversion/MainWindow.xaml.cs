@@ -68,33 +68,84 @@ namespace ExcelBlackboardConversion
             }
         }
 
-		private void button2_Click(object sender, RoutedEventArgs e)
-		{
+        private void button2_Click(object sender, RoutedEventArgs e)
+        {
+            // populate data structures
             string file;
-			file = "C:\\Users\\Claudio\\OneDrive - Northumbria University - Production Azure AD\\2022\\MastersResearch\\Sem2\\Marks\\CoordinationV1.xlsx";
-			file = "C:\\Users\\Claudio\\OneDrive - Northumbria University - Production Azure AD\\2022\\MastersResearch\\Sem2\\Marks\\CoordinationV2.xlsx";
-			var groups = MarkGroup.GetGroups(file).ToList();
-			var collection = new PairingCollection();
-			foreach (var group in groups)
-			{
-				group.PopulateCollection(ref collection);
-			}
-            Table(collection, (x, y) => x.MarkDeltas.Count.ToString(), "count");
-			Table(collection, (x, y) => Statistics.Mean(x.GetDeltas(y)).ToString(), "mean");
-			Table(collection, (x, y) => Statistics.StandardDeviation(x.GetDeltas(y)).ToString(), "std");
+            file = "C:\\Users\\Claudio\\OneDrive - Northumbria University - Production Azure AD\\2022\\MastersResearch\\Sem2\\Marks\\CoordinationV1.xlsx";
+            file = "C:\\Users\\Claudio\\OneDrive - Northumbria University - Production Azure AD\\2022\\MastersResearch\\Sem2\\Marks\\CoordinationV2.xlsx";
+            file = @"C:\Data\Dev\Unn\KA7068 _ KB7052 2022_23 Semester 2 - Supervisor, 2nd & 3rd Marker Form.xlsx";
+            var groups = MarkGroup.GetGroups(file).ToList();
+            var collection = new PairingCollection();
+            foreach (var group in groups)
+            {
+                group.PopulateCollection(ref collection);
+            }
 
-            Debug.Write("{mrkr}\t{Statistics.Mean(deltas)}\t{Statistics.StandardDeviation(deltas)}\t{deltas.Count}\t");
-			Debug.Write("{mrkr}\t{Statistics.Mean(diff)}\t{Statistics.StandardDeviation(diff)}\t{diff.Count}\t");
+            // reporting
+
+            // pairwise tables
+            Table(collection, (x, y) => x.MarkDeltas.Count.ToString(), "count");
+            Table(collection, (x, y) => Statistics.Mean(x.GetDeltas(y)).ToString(), "mean");
+            Table(collection, (x, y) => Statistics.StandardDeviation(x.GetDeltas(y)).ToString(), "std");
+
+            // general marks
+
+            Debug.WriteLine("All marks");
+            Debug.WriteLine("{mrkr}\t{Statistics.Mean(deltasWithSign)}\t{Statistics.StandardDeviation(deltasWithSign)}\t{deltasWithSign.Count}\t");
+            foreach (var mrkr in collection.GetAllMarkers())
+            {
+                var deltasWithSign = collection.GetDeltas(mrkr).Select(x => Math.Abs(x)).ToList();
+                Debug.WriteLine($"{mrkr}\t{Statistics.Mean(deltasWithSign)}\t{Statistics.StandardDeviation(deltasWithSign)}\t{deltasWithSign.Count}\t");
+            }
             Debug.WriteLine("");
+
+
+            Debug.WriteLine("All marks");
+			Debug.WriteLine("{mrkr}\t{Statistics.Mean(diff)}\t{Statistics.StandardDeviation(diff)}\t{diff.Count}\t");
+			foreach (var mrkr in collection.GetAllMarkers())
+			{
+				var deltas = collection.GetDeltas(mrkr).ToList();
+				Debug.WriteLine($"{mrkr}\t{Statistics.Mean(deltas)}\t{Statistics.StandardDeviation(deltas)}\t{deltas.Count}\t");
+			}
+			Debug.WriteLine("");
+
+			// 1st marker results
+			Debug.WriteLine("Supervisor marker deltas");
+			Debug.WriteLine("{mrkr}\t{Statistics.Mean(positiveDelta)}\t{Statistics.StandardDeviation(positiveDelta)}\t{positiveDelta.Count}\t");
 			foreach (var mrkr in collection.GetAllMarkers())
             {
-                var deltas = collection.GetDeltas(mrkr).Select(x => Math.Abs(x)).ToList();
-                Debug.Write($"{mrkr}\t{Statistics.Mean(deltas)}\t{Statistics.StandardDeviation(deltas)}\t{deltas.Count}\t");
-
-				var diff = collection.GetDeltas(mrkr).ToList();
-				Debug.Write($"{mrkr}\t{Statistics.Mean(diff)}\t{Statistics.StandardDeviation(diff)}\t{diff.Count}\t");
-                Debug.WriteLine("");
+                var positiveDelta = GetSupervisorDeltas(groups, mrkr).ToList();
+				Debug.WriteLine($"{mrkr}\t{Statistics.Mean(positiveDelta)}\t{Statistics.StandardDeviation(positiveDelta)}\t{positiveDelta.Count}\t");
 			}
+			Debug.WriteLine("");
+
+			// first marker bias
+			Debug.WriteLine("Supervisor marker bias");
+			Debug.WriteLine("{mrkr}\t{Statistics.Mean(SupervisorDelta) + Statistics.Mean(allDeltas)}\t{allDeltas.Count}\t{SupervisorDelta.Count}\t");
+			foreach (var mrkr in collection.GetAllMarkers())
+			{
+				var allDeltas = collection.GetDeltas(mrkr).ToList();
+				var SupervisorDelta = GetSupervisorDeltas(groups, mrkr).ToList();
+				Debug.WriteLine($"{mrkr}\t{Statistics.Mean(SupervisorDelta)+Statistics.Mean(allDeltas)}\t{allDeltas.Count}\t{SupervisorDelta.Count}\t");
+			}
+			Debug.WriteLine("");
+
+
+		}
+
+		private IEnumerable<double> GetSupervisorDeltas(List<MarkGroup> groups, string mrkr)
+		{
+            foreach (var grp in groups)
+            {
+                if (grp.Marks.First().Marker != mrkr)
+                    continue;
+                var SupervisorMrk = grp.Marks.First().Mark;
+                for (int i = 1; i < grp.Marks.Count; i++)
+                {
+                    yield return SupervisorMrk - grp.Marks[i].Mark;
+                }
+            }
 		}
 
 		private static void Table(PairingCollection collection, Func<MarkPair,string, string> reportFunction, string header)
